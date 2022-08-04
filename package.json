@@ -59,6 +59,9 @@
   "dependencies": {
     "@babel/runtime": "^7.17.2",
     "@fortawesome/fontawesome-free": "^5.15.4",
+    "@linaria/babel-preset": "^4.1.2",
+    "@linaria/core": "^4.1.1",
+    "@linaria/react": "^4.1.2",
     "axios": "^0.25.0",
     "bezier-easing": "^2.1.0",
     "core-js": "^3.21.1",
@@ -77,9 +80,10 @@
     "react-dom": "^17.0.2",
     "react-helmet": "^6.1.0",
     "react-router-dom": "6",
+    "react-transition-group": "^4.4.5",
     "regenerator-runtime": "^0.13.9",
     "sqlite3": "^5.0.2",
-    "styled-components": "^5.3.3",
+    "styled-components": "^5.3.5",
     "typeorm": "^0.2.44",
     "uuid": "^8.3.2",
     "zengin-code": "^1.0.0-p20220130"

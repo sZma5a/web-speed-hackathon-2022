@@ -9,6 +9,7 @@ import { RaceResult } from "./pages/races/RaceResult";
 
 /** @type {React.VFC} */
 export const Routes = () => {
+  console.log("Router")
   return (
     <RouterRoutes>
       <Route element={<CommonLayout />} path="/">

@@ -22,6 +22,7 @@ export function useFetch(apiPath, fetcher) {
   });
 
   useEffect(() => {
+    console.log("USEEFFECT")
     setResult(() => ({
       data: null,
       error: null,

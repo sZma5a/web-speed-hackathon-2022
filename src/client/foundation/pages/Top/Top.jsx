@@ -1,4 +1,5 @@
-import _ from "lodash";
+import axios from "axios";
+// import _ from "lodash";
 import moment from "moment-timezone";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
@@ -18,64 +19,65 @@ import { ChargeDialog } from "./internal/ChargeDialog";
 import { HeroImage } from "./internal/HeroImage";
 import { RecentRaceList } from "./internal/RecentRaceList";
 
+
+
 /**
  * @param {Model.Race[]} races
  * @returns {Model.Race[]}
  */
-function useTodayRacesWithAnimation(races) {
-  const [isRacesUpdate, setIsRacesUpdate] = useState(false);
-  const [racesToShow, setRacesToShow] = useState([]);
-  const numberOfRacesToShow = useRef(0);
-  const prevRaces = useRef(races);
-  const timer = useRef(null);
+// function useTodayRacesWithAnimation(races) {
+  // const [isRacesUpdate, setIsRacesUpdate] = useState(false);
+  // const [racesToShow, setRacesToShow] = useState([]);
 
-  useEffect(() => {
-    const isRacesUpdate =
-      _.difference(
-        races.map((e) => e.id),
-        prevRaces.current.map((e) => e.id),
-      ).length !== 0;
 
-    prevRaces.current = races;
-    setIsRacesUpdate(isRacesUpdate);
-  }, [races]);
+  // useEffect(() => {
+  //   const isRacesUpdatea =
+  //     _.difference(
+  //       races.map((e) => e.id),
+  //       prevRaces.current.map((e) => e.id),
+  //     ).length !== 0;
 
-  useEffect(() => {
-    if (!isRacesUpdate) {
-      return;
-    }
-    // 視覚効果 off のときはアニメーションしない
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setRacesToShow(races);
-      return;
-    }
+  //   prevRaces.current = races;
+  //   setIsRacesUpdate(isRacesUpdatea);
+  //   // setRacesToShow(races);
+  // }, [races]);
 
-    numberOfRacesToShow.current = 0;
-    if (timer.current !== null) {
-      clearInterval(timer.current);
-    }
+  // useEffect(() => {
+  //   if (!isRacesUpdate) {
+  //     return;
+  //   }
+  //   // 視覚効果 off のときはアニメーションしない
+  //   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  //     setRacesToShow(races);
+  //     return;
+  //   }
 
-    timer.current = setInterval(() => {
-      if (numberOfRacesToShow.current >= races.length) {
-        clearInterval(timer.current);
-        return;
-      }
+  //   numberOfRacesToShow.current = 0;
+  //   if (timer.current !== null) {
+  //     clearInterval(timer.current);
+  //   }
 
-      numberOfRacesToShow.current++;
-      setRacesToShow(_.slice(races, 0, numberOfRacesToShow.current));
-    }, 100);
-  }, [isRacesUpdate, races]);
+  //   timer.current = setInterval(() => {
+  //     if (numberOfRacesToShow.current >= races.length) {
+  //       clearInterval(timer.current);
+  //       return;
+  //     }
 
-  useEffect(() => {
-    return () => {
-      if (timer.current !== null) {
-        clearInterval(timer.current);
-      }
-    };
-  }, []);
+  //     numberOfRacesToShow.current++;
+  //     setRacesToShow(_.slice(races, 0, numberOfRacesToShow.current));
+  //   }, 100);
+  // // }, [isRacesUpdate, races]);
 
-  return racesToShow;
-}
+  // // useEffect(() => {
+  //   return () => {
+  //     if (timer.current !== null) {
+  //       clearInterval(timer.current);
+  //     }
+  //   };
+  // }, []);
+
+  // return racesToShow;
+// }
 
 /**
  * @param {Model.Race[]} todayRaces
@@ -99,6 +101,24 @@ function useHeroImage(todayRaces) {
 
 /** @type {React.VFC} */
 export const Top = () => {
+  // const [userData, setUserData] = useState(null);
+  const [raceData, setRaceData] = useState(null);
+  // const [revalidate, setRevalidate] = useState(null);
+  // const { loggedIn, userId } = useAuth();
+
+  useEffect(() => {
+    // axios.get("/api/users/me", {
+    //   headers: { "x-app-userid": userId },
+    //   responseType: "json",
+    // }).then((d) => setUserData(d.data));
+
+    axios.get("/api/races", { responseType: "json" }).then((d) => setRaceData(d.data));
+  
+    // jsonFetcher("/api/races").then((d) => setRaceData(d));
+    // console.log(userData)
+  }, []);
+
+  
   const { date = moment().format("YYYY-MM-DD") } = useParams();
 
   const ChargeButton = styled.button`
@@ -119,7 +139,7 @@ export const Top = () => {
     authorizedJsonFetcher,
   );
 
-  const { data: raceData } = useFetch("/api/races", jsonFetcher);
+  // const { data: raceData } = useFetch("/api/races", jsonFetcher);
 
   const handleClickChargeButton = useCallback(() => {
     if (chargeDialogRef.current === null) {
@@ -133,6 +153,8 @@ export const Top = () => {
     revalidate();
   }, [revalidate]);
 
+  console.log(raceData)
+
   const todayRaces =
     raceData != null
       ? [...raceData.races]
@@ -144,8 +166,18 @@ export const Top = () => {
             isSameDay(race.startAt, date),
           )
       : [];
-  const todayRacesToShow = useTodayRacesWithAnimation(todayRaces);
+  console.log(todayRaces)
+  // useTodayRacesWithAnimation(todayRaces);
+  // const todayRacesToShow = useTodayRacesWithAnimation(todayRaces);
+  const todayRacesToShow = todayRaces ?? []
   const heroImageUrl = useHeroImage(todayRaces);
+
+  let items = []
+  if (todayRacesToShow.length > 0) {
+    items = todayRacesToShow.map((race) => (
+      <RecentRaceList.Item key={race.id} race={race} />
+    ))
+  }
 
   return (
     <Container>
@@ -170,9 +202,10 @@ export const Top = () => {
         <Heading as="h1">本日のレース</Heading>
         {todayRacesToShow.length > 0 && (
           <RecentRaceList>
-            {todayRacesToShow.map((race) => (
+            {/* {todayRacesToShow.map((race) => (
               <RecentRaceList.Item key={race.id} race={race} />
-            ))}
+            ))} */}
+            {items}
           </RecentRaceList>
         )}
       </section>
